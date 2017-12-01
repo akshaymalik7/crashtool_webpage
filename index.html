@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>Draw GeoJSON points</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.41.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.41.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="crashesLite.js"></script>
+    <script src="CL_99.js"></script>
+</head>
+<body>
+
+<div id='map'></div>
+<script>
+//console.log(centerlines);
+mapboxgl.accessToken = 'pk.eyJ1IjoibWFwbXlkYXRhIiwiYSI6ImNqOXNtMTR5dzA5bGYycXBsdmFraHRnNnkifQ.vqfvXOyVVQsxxjZpJ99vYQ';
+var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/light-v9',
+    center: [-75.15, 40],
+    zoom: 11,
+    maxzoom: 16,
+    minzoom: 11
+});
+
+
+console.log(map.getZoom())
+
+map.on('load', function () {
+
+    map.addLayer({
+        "id": "centerlines",
+        "type": "line",
+        "source": {
+            "type": "geojson",
+            "data": {
+                "type": "FeatureCollection",
+                "features": centerlines.features
+                      }
+                  },
+        "paint": {
+          "line-width": 1,
+          "line-color": "#30323D"
+                }
+            });
+
+    map.addLayer({
+        "id": "injurycrashes",
+        "type": "circle",
+        "source": {
+            "type": "geojson",
+            "data": {
+                "type": "FeatureCollection",
+                "features": crashes.features
+                      }
+                  },
+        "paint": {
+          "circle-radius": 1,
+          "circle-opacity": 0.3,
+          "circle-color": "#54F2F2",
+          "circle-stroke-width": 1,
+          "circle-stroke-color": "#54F2F2"
+                }
+            });
+
+
+});
+
+
+map.on("zoom", function(){
+  console.log(map.getZoom());
+  map.setPaintProperty('injurycrashes', "circle-radius", ["^", 1.15, map.getZoom()])
+
+});
+
+
+</script>
+
+</body>
+</html>
