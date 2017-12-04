@@ -2,10 +2,13 @@
 <html>
 <head>
     <meta charset='utf-8' />
-    <title>Draw GeoJSON points</title>
+    <title>Crash Tool</title>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.41.0/mapbox-gl.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.41.0/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
+    <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.0.4/mapbox-gl-draw.css' type='text/css' />
+    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.0.4/mapbox-gl-draw.js'></script>
     <style>
         body { margin:0; padding:0; }
         #map { position:absolute; top:0; bottom:0; width:100%; }
@@ -16,7 +19,12 @@
 </head>
 <body>
 
-<div id='map'></div>
+<div id='map'>
+  <div id="slidecontainer">
+    <input type="range" min="1" max="500" value="50" class="slider" id="myRange">
+  </div>
+</div>
+
 <script>
 //console.log(centerlines);
 mapboxgl.accessToken = 'pk.eyJ1IjoibWFwbXlkYXRhIiwiYSI6ImNqOXNtMTR5dzA5bGYycXBsdmFraHRnNnkifQ.vqfvXOyVVQsxxjZpJ99vYQ';
@@ -29,6 +37,8 @@ var map = new mapboxgl.Map({
     minzoom: 11
 });
 
+var Draw = new MapboxDraw();
+map.addControl(Draw)
 
 console.log(map.getZoom())
 
@@ -62,20 +72,42 @@ map.on('load', function () {
                   },
         "paint": {
           "circle-radius": 1,
-          "circle-opacity": 0.3,
-          "circle-color": "#54F2F2",
+          "circle-opacity": 0.5,
+          "circle-color": "#00A1E4",
           "circle-stroke-width": 1,
-          "circle-stroke-color": "#54F2F2"
+          "circle-stroke-color": "#00A1E4"
                 }
             });
 
+    map.setMinZoom(11);
 
 });
 
 
 map.on("zoom", function(){
   console.log(map.getZoom());
-  map.setPaintProperty('injurycrashes', "circle-radius", ["^", 1.15, map.getZoom()])
+  map.setMinZoom(11);
+  map.setPaintProperty('injurycrashes', "circle-stroke-width", ["^", 1.05, map.getZoom()])
+  function markerResize() {
+    if (map.getZoom() < 13) {
+      map.setPaintProperty('injurycrashes', "circle-radius", ["^", 1.05, map.getZoom()])
+    }
+
+    else if (15 > map.getZoom() > 13) {
+      map.setPaintProperty('injurycrashes', "circle-radius", ["^", 1.06, map.getZoom()])
+    }
+
+    else if (18 > map.getZoom() > 15) {
+      map.setPaintProperty('injurycrashes', "circle-radius", ["^", 1.14, map.getZoom()])
+    }
+    else {
+      map.setPaintProperty('injurycrashes', "circle-radius", ["^", 1.2, map.getZoom()])
+
+    }
+  }
+
+  markerResize();
+
 
 });
 
