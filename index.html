@@ -1,118 +1,173 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset='utf-8' />
     <title>Crash Tool</title>
-    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.41.0/mapbox-gl.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.41.0/mapbox-gl.css' rel='stylesheet' />
+
     <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
+
     <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.0.4/mapbox-gl-draw.css' type='text/css' />
     <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.0.4/mapbox-gl-draw.js'></script>
+
+
+    <link rel="stylesheet" type="text/css" href="css/isotope.css" media="screen" />
+    <link rel="stylesheet" href="js/amoeba/fancybox/jquery.fancybox.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/bootstrap-theme.css">
+    <link rel="stylesheet" href="css/style.css">
+    <!-- skin -->
+    <link rel="stylesheet" href="skin/default.css">
+
     <style>
         body { margin:0; padding:0; }
-        #map { position:absolute; top:0; bottom:0; width:100%; }
+        #map { position:absolute; top:0; bottom:0; width:100%; height: 100%}
+        #slidecontainer {
+          position: absolute;
+          top: 20;
+          width: 200px}
+        #features {
+               position: absolute;
+               top:0;
+               left: 0;
+               bottom: 0;
+               width: 200px;
+               overflow: auto;
+               background: rgba(255, 255, 255, 0.8);}
     </style>
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="crashesLite.js"></script>
-    <script src="CL_99.js"></script>
+
+    <script src="js/crashesLite.js"></script>
+    <script src="js/CL_99.js"></script>
+
 </head>
+
 <body>
 
-<div id='map'>
-  <div id="slidecontainer">
-    <input type="range" min="1" max="500" value="50" class="slider" id="myRange">
-  </div>
-</div>
+  <div id='map'></div>
+  <pre id='features'></pre>
+  <pre id="slidecontainer">
+    <input
+      type="range"
+      min="50"                    // default 0
+      max="1000"                  // default 100
+      step="10"                   // default 1
+      value="300"                 // default min + (max-min)/2
+    >
+  </pre>
 
-<script>
-//console.log(centerlines);
-mapboxgl.accessToken = 'pk.eyJ1IjoibWFwbXlkYXRhIiwiYSI6ImNqOXNtMTR5dzA5bGYycXBsdmFraHRnNnkifQ.vqfvXOyVVQsxxjZpJ99vYQ';
-var map = new mapboxgl.Map({
-    container: 'map',
-    style: 'mapbox://styles/mapbox/light-v9',
-    center: [-75.15, 40],
-    zoom: 11,
-    maxzoom: 16,
-    minzoom: 11
-});
 
-var Draw = new MapboxDraw();
-map.addControl(Draw)
+  <script>
+  console.log(centerlines);
+    mapboxgl.accessToken = 'pk.eyJ1IjoibWFwbXlkYXRhIiwiYSI6ImNqOXNtMTR5dzA5bGYycXBsdmFraHRnNnkifQ.vqfvXOyVVQsxxjZpJ99vYQ';
 
-console.log(map.getZoom())
+    var map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/light-v9',
+        center: [-75.15, 40],
+        zoom: 11,
+        maxzoom: 16,
+        minzoom: 11
+    });
 
-map.on('load', function () {
+    var Draw = new MapboxDraw();
+    map.addControl(Draw) // drawing toolbar
 
-    map.addLayer({
-        "id": "centerlines",
-        "type": "line",
-        "source": {
-            "type": "geojson",
-            "data": {
-                "type": "FeatureCollection",
-                "features": centerlines.features
+    console.log(map.getZoom())
+
+    map.on('load', function () {
+
+          map.addLayer({
+              "id": "centerlines",
+              "type": "line",
+              "source": {
+                  "type": "geojson",
+                  "data": {
+                      "type": "FeatureCollection",
+                      "features": centerlines.features
+                            }
+                        },
+              "paint": {
+                "line-width": 1,
+                "line-color": "#30323D"
                       }
-                  },
-        "paint": {
-          "line-width": 1,
-          "line-color": "#30323D"
-                }
-            });
+                  });
 
-    map.addLayer({
-        "id": "injurycrashes",
-        "type": "circle",
-        "source": {
-            "type": "geojson",
-            "data": {
-                "type": "FeatureCollection",
-                "features": crashes.features
+          map.addLayer({
+              "id": "injurycrashes",
+              "type": "circle",
+              "source": {
+                  "type": "geojson",
+                  "data": {
+                      "type": "FeatureCollection",
+                      "features": crashes.features
+                            }
+                        },
+              "paint": {
+                "circle-radius": 1,
+                "circle-opacity": 0.5,
+                "circle-color": "#00A1E4",
+                "circle-stroke-width": 1,
+                "circle-stroke-color": "#00A1E4"
                       }
-                  },
-        "paint": {
-          "circle-radius": 1,
-          "circle-opacity": 0.5,
-          "circle-color": "#00A1E4",
-          "circle-stroke-width": 1,
-          "circle-stroke-color": "#00A1E4"
-                }
-            });
+                  });
 
-    map.setMinZoom(11);
+          map.setMinZoom(11);
 
-});
+      });
 
 
-map.on("zoom", function(){
-  console.log(map.getZoom());
-  map.setMinZoom(11);
-  map.setPaintProperty('injurycrashes', "circle-stroke-width", ["^", 1.05, map.getZoom()])
-  function markerResize() {
-    if (map.getZoom() < 13) {
-      map.setPaintProperty('injurycrashes', "circle-radius", ["^", 1.05, map.getZoom()])
-    }
+    map.on("zoom", function(){
+      console.log(map.getZoom());
+      map.setMinZoom(11);
+      map.setPaintProperty('injurycrashes', "circle-stroke-width", ["^", 1.01, map.getZoom()])
+      function markerResize() {
+        if (map.getZoom() < 13) {
+          map.setPaintProperty('injurycrashes', "circle-radius", ["^", 1.05, map.getZoom()])
+        }
 
-    else if (15 > map.getZoom() > 13) {
-      map.setPaintProperty('injurycrashes', "circle-radius", ["^", 1.06, map.getZoom()])
-    }
+        else if (15 > map.getZoom() > 13) {
+          map.setPaintProperty('injurycrashes', "circle-radius", ["^", 1.06, map.getZoom()])
+        }
 
-    else if (18 > map.getZoom() > 15) {
-      map.setPaintProperty('injurycrashes', "circle-radius", ["^", 1.14, map.getZoom()])
-    }
-    else {
-      map.setPaintProperty('injurycrashes', "circle-radius", ["^", 1.2, map.getZoom()])
+        else if (18 > map.getZoom() > 15) {
+          map.setPaintProperty('injurycrashes', "circle-radius", ["^", 1.07, map.getZoom()])
+        }
+        else {
+          map.setPaintProperty('injurycrashes', "circle-radius", ["^", 1.14, map.getZoom()])
 
-    }
-  }
+        }
+      }
 
-  markerResize();
-
-
-});
+      markerResize();
 
 
-</script>
+      });
+
+    map.on('click', function (e) {
+        var bbox = [[e.point.x - 2, e.point.y - 2], [e.point.x + 2, e.point.y + 2]];
+        var features = map.queryRenderedFeatures(bbox, { layers: [''] });
+        document.getElementById('features').innerHTML = JSON.stringify(features, null, 2);
+      });
+
+
+    var bufferAroundLines = turf.buffer(centerlines, 10, {unit: 'meters'});
+
+    bufferAroundLines();
+  </script>
+
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
 
 </body>
 </html>
